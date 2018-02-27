@@ -1,0 +1,30 @@
+{
+  "name": "webpack.wtf-api",
+  "author": {
+    "name": "Sara Vieira"
+  },
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon .",
+    "test": "eslint . --cache --fix"
+  },
+  "dependencies": {
+    "contentful": "^5.1.3",
+    "graphql-yoga": "1.2.0",
+    "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.18.1",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nodemon": "^1.17.1",
+    "now-env": "^3.0.4"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.9"
+  }
+}
