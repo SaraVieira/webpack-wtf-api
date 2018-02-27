@@ -24,7 +24,7 @@ const typeDefs = `
     title: String,
     url: String
   }
-  type Link { url: String, type: [String], meta: Meta }
+  type Link { url: String, type: [String], meta: Meta, paid: Boolean }
 `
 
 const resolvers = {
