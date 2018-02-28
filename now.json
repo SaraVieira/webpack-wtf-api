@@ -1,5 +1,6 @@
 {
   "env": {
-    "TOKEN": "@token"
+    "TOKEN": "@token",
+    "MANAGEMENT_TOKEN": "@management"
   }
 }

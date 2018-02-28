@@ -1,11 +1,17 @@
 const { GraphQLServer } = require('graphql-yoga')
 const contentful = require('contentful')
+const management = require('contentful-management')
 const fetch = require('isomorphic-fetch')
+const validUrl = require('valid-url')
 require('now-env')
 
-const client = contentful.createClient({
+const links = contentful.createClient({
   space: 't22ip2e58gad',
   accessToken: process.env.TOKEN
+})
+
+const entries = management.createClient({
+  accessToken: process.env.MANAGEMENT_TOKEN
 })
 
 const typeDefs = `
@@ -13,6 +19,9 @@ const typeDefs = `
     allLinks: [Link],
     category(category: String): [Link]
     paid(paid: Boolean): [Link]
+  }
+  type Mutation {
+    addLink(url: String, type: [String], paid: Boolean): Link
   }
   type Meta {
     author: String,
@@ -38,9 +47,48 @@ const GetData = link =>
     }))
 
 const resolvers = {
+  Mutation: {
+    addLink: async (_, { url, type, paid }) => {
+      if (!validUrl.isUri(url)) {
+        throw Error('Not an Valid URL')
+      }
+
+      if (!type || !url) {
+        throw Error('Type and URL need a value')
+      }
+
+      const newLink = await entries
+        .getSpace('t22ip2e58gad')
+        .then(space =>
+          space.createEntry('links', {
+            fields: {
+              url: {
+                'en-US': url
+              },
+              type: {
+                'en-US': type
+              },
+              paid: {
+                'en-US': paid
+              }
+            }
+          })
+        )
+        .then(rsp => rsp.fields)
+        .then(d => ({
+          url: d.url['en-US'],
+          paid: d.paid['en-US'],
+          type: d.type['en-US']
+        }))
+        .catch(console.error)
+
+      console.log(newLink)
+      return newLink
+    }
+  },
   Query: {
     allLinks: async () => {
-      const response = await client.getEntries()
+      const response = await links.getEntries()
       const results = await response.items
         .map(rsp => rsp.fields)
         .map(link => GetData(link))
@@ -48,7 +96,7 @@ const resolvers = {
       return results
     },
     category: async (_, { category }) => {
-      const response = await client.getEntries({
+      const response = await links.getEntries({
         content_type: 'links',
         'fields.type': category
       })
@@ -59,7 +107,7 @@ const resolvers = {
       return results
     },
     paid: async (_, { paid }) => {
-      const response = await client.getEntries({
+      const response = await links.getEntries({
         content_type: 'links',
         'fields.paid': paid
       })
