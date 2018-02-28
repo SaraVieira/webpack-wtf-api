@@ -5,3 +5,4 @@ dist
 *.log
 now-secrets.json
 .eslintcache
+.deploy
