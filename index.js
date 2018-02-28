@@ -8,8 +8,6 @@ const client = contentful.createClient({
   accessToken: process.env.TOKEN
 })
 
-const getUrl = url => `https://meta.webpack.wtf/?url=${url}`
-
 const typeDefs = `
   type Query {
     allLinks: [Link],
@@ -29,19 +27,23 @@ const typeDefs = `
   type Link { url: String, type: [String], meta: Meta, paid: Boolean }
 `
 
+const getUrl = url => `https://meta.webpack.wtf/?url=${url}`
+
+const GetData = link =>
+  fetch(getUrl(link.url))
+    .then(rsp => rsp.json())
+    .then(meta => ({
+      ...link,
+      meta
+    }))
+
 const resolvers = {
   Query: {
     allLinks: async () => {
       const response = await client.getEntries()
-      const fields = response.items.map(rsp => rsp.fields)
-      const results = await fields.map(link =>
-        fetch(getUrl(link.url))
-          .then(rsp => rsp.json())
-          .then(meta => ({
-            ...link,
-            meta
-          }))
-      )
+      const results = await response.items
+        .map(rsp => rsp.fields)
+        .map(link => GetData(link))
 
       return results
     },
@@ -50,15 +52,9 @@ const resolvers = {
         content_type: 'links',
         'fields.type': category
       })
-      const fields = response.items.map(rsp => rsp.fields)
-      const results = await fields.map(link =>
-        fetch(getUrl(link.url))
-          .then(rsp => rsp.json())
-          .then(meta => ({
-            ...link,
-            meta
-          }))
-      )
+      const results = await response.items
+        .map(rsp => rsp.fields)
+        .map(link => GetData(link))
 
       return results
     },
@@ -67,15 +63,9 @@ const resolvers = {
         content_type: 'links',
         'fields.paid': paid
       })
-      const fields = response.items.map(rsp => rsp.fields)
-      const results = await fields.map(link =>
-        fetch(getUrl(link.url))
-          .then(rsp => rsp.json())
-          .then(meta => ({
-            ...link,
-            meta
-          }))
-      )
+      const results = await response.items
+        .map(rsp => rsp.fields)
+        .map(link => GetData(link))
 
       return results
     }
