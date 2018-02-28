@@ -8,6 +8,8 @@ const client = contentful.createClient({
   accessToken: process.env.TOKEN
 })
 
+const getUrl = url => `https://meta.webpack.wtf/?url=${url}`
+
 const typeDefs = `
   type Query {
     allLinks: [Link],
@@ -33,7 +35,7 @@ const resolvers = {
       const response = await client.getEntries()
       const fields = response.items.map(rsp => rsp.fields)
       const results = await fields.map(link =>
-        fetch(`https://open-graph-webpack.now.sh/?url=${link.url}`)
+        fetch(getUrl(link.url))
           .then(rsp => rsp.json())
           .then(meta => ({
             ...link,
@@ -50,7 +52,7 @@ const resolvers = {
       })
       const fields = response.items.map(rsp => rsp.fields)
       const results = await fields.map(link =>
-        fetch(`https://open-graph-webpack.now.sh/?url=${link.url}`)
+        fetch(getUrl(link.url))
           .then(rsp => rsp.json())
           .then(meta => ({
             ...link,
@@ -67,7 +69,7 @@ const resolvers = {
       })
       const fields = response.items.map(rsp => rsp.fields)
       const results = await fields.map(link =>
-        fetch(`https://open-graph-webpack.now.sh/?url=${link.url}`)
+        fetch(getUrl(link.url))
           .then(rsp => rsp.json())
           .then(meta => ({
             ...link,
